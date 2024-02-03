@@ -14,7 +14,7 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'github_release_downloader=github_release_downloader:main',
+            'download-releases=github_release_downloader:main',
         ],
     },
 )
