@@ -52,7 +52,11 @@ def get_release_assets(yaml_file_path=None,
   for item in data:
 
     # Get the latest release
-    github_response = get_latest_release(item['repository'], base_url)
+    try:
+      github_response = get_latest_release(item['repository'], base_url)
+    except requests.exceptions.HTTPError as err:
+      print(f"Error: received HTTP status {err.response.status_code} looking for latest release of {item['repository']}", file=sys.stderr)
+      break
 
     # Print the name of the release
     if not quiet:
@@ -117,10 +121,17 @@ def download_file(url, local_file_path, show_progress):
   The function raises an HTTPError if the download request returns an unsuccessful status code.
   """
 
-  # Download the file
-  response = requests.get(url, stream=True)
-  response.raise_for_status()
-  
+  try:
+      # Download the file
+      response = requests.get(url, stream=True)
+      response.raise_for_status()
+  except requests.exceptions.HTTPError as err:
+      if err.response.status_code == 404:
+          print(f"Error: File not found at {url}")
+          return
+      else:
+          raise
+
   # Get the total size of the file from the headers
   total_size = int(response.headers.get('content-length', 0))
   
