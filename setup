@@ -4,6 +4,6 @@ if ! command -v pip-compile > /dev/null; then
   pip install -q --upgrade pip-tools
 fi
 if [ ! -f "requirements.txt" ]; then
-  pip-compile -q --strip-extras
+  pip-compile -q --strip-extras --no-emit-index-url
 fi
 pip-sync

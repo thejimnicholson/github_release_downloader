@@ -1,19 +1,11 @@
-#!/usr/bin/env python
-
 import os
+import sys
 import re
 import yaml
 import requests
 import argparse
 
-def get_releases(yaml_file_path=None, download_dir=None, base_url='https://api.github.com'):
-  # If no YAML file path is provided, use the default file
-  if yaml_file_path is None:
-      yaml_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'github-releases.yaml')
-
-  # If no download directory is provided, use the current working directory
-  if download_dir is None:
-    download_dir = os.getcwd()
+def get_release_assets(yaml_file_path=None, download_dir=None, base_url='https://api.github.com'):
 
   # Load the YAML file
   with open(yaml_file_path, 'r') as file:
@@ -61,12 +53,19 @@ def get_releases(yaml_file_path=None, download_dir=None, base_url='https://api.g
               for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
 
-if __name__ == "__main__":
+def main(argv=sys.argv):
   parser = argparse.ArgumentParser(description='Download GitHub release assets specified in a YAML file.')
-  parser.add_argument('-c', '--config', help='Path to the YAML file.', default=None)
-  parser.add_argument('-d', '--dir', help='Directory to download the files to.', default=None)
+  parser.add_argument('-c', '--config', help='Path to the YAML file.', default=os.path.join(os.getcwd(), 'github-releases.yaml'))
+  parser.add_argument('-d', '--dir', help='Directory to download the files to.', default=os.getcwd())
   parser.add_argument('-u', '--url', help='Base URL of the GitHub API server.', default='https://api.github.com')
-
   args = parser.parse_args()
 
-  get_releases(args.config, args.dir, args.url)
+  if not os.path.exists(args.config):
+    print(f"Config file {args.config} does not exist.")
+    parser.print_help()
+    sys.exit(1)
+  
+  get_release_assets(args.config, args.dir, args.url)
+
+if __name__ == "__main__":
+  main()

@@ -1,1 +1,1 @@
-from .github_release_downloader import get_releases
+from .github_release_downloader import *
