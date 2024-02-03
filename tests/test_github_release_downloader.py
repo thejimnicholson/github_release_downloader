@@ -8,7 +8,7 @@ class TestGithubReleaseDownload(unittest.TestCase):
     @patch('os.path.exists', return_value=True)
     @patch('os.path.getsize', return_value=123)
     @patch('requests.get')
-    def test_github_release_download(self, mock_get, mock_getsize, mock_exists, mock_yaml):
+    def test_github_release_downloader(self, mock_get, mock_getsize, mock_exists, mock_yaml):
         mock_response = mock_get.return_value
         mock_response.iter_content.return_value = [b'file content']
         mock_response.raise_for_status.return_value = None

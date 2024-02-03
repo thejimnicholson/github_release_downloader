@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='github_release_downloader',
     version='0.1.0',
@@ -8,5 +11,5 @@ setup(
     author_email='thejimnicholson@gmail.com',
     description='Download GitHub release assets specified in a YAML file.',
     packages=find_packages(),    
-    install_requires=[],
+    install_requires=requirements,
 )
