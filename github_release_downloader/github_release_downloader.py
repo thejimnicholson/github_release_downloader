@@ -1,10 +1,14 @@
-import os
-import sys
-import re
-import yaml
-import requests
 import argparse
+import os
+import re
+import sys
+
+import requests
+import yaml
 from tqdm import tqdm
+from github_release_downloader._version import __version__
+
+
 
 def get_release_assets(yaml_file_path=None, 
                        download_dir=None, 
@@ -58,36 +62,42 @@ def get_release_assets(yaml_file_path=None,
           else:
             if not quiet:
               print(f"  Downloading asset {asset['name']}")
+            download_file(asset['browser_download_url'], local_file_path, show_progress)
 
-            # Download the file
-            response = requests.get(asset['browser_download_url'], stream=True)
-            response.raise_for_status()
-            
-            # Get the total size of the file from the headers
-            total_size = int(response.headers.get('content-length', 0))
-            
-            # Create a progress bar with tqdm
-            if show_progress:
-              progress_bar = tqdm(total=total_size, unit='iB', unit_scale=True)
 
-            # Save the file
-            with open(local_file_path, 'wb') as file:
-              for chunk in response.iter_content(chunk_size=8192):
-                if show_progress:
-                  progress_bar.update(len(chunk))
-                file.write(chunk)
+def download_file(url, local_file_path, show_progress):
+  # Download the file
+  response = requests.get(url, stream=True)
+  response.raise_for_status()
+  
+  # Get the total size of the file from the headers
+  total_size = int(response.headers.get('content-length', 0))
+  
+  # Create a progress bar with tqdm
+  if show_progress:
+    progress_bar = tqdm(total=total_size, unit='iB', unit_scale=True)
 
-            # Close the progress bar
-            if show_progress:
-              progress_bar.close()
+  # Save the file
+  with open(local_file_path, 'wb') as file:
+    for chunk in response.iter_content(chunk_size=8192):
+      if show_progress:
+        progress_bar.update(len(chunk))
+      file.write(chunk)
+
+  # Close the progress bar
+  if show_progress:
+    progress_bar.close()
+
 
 def main(argv=sys.argv):
   parser = argparse.ArgumentParser(description='Download GitHub release assets specified in a YAML file.')
   parser.add_argument('-c', '--config', help='Path to the YAML file.', default=os.path.join(os.getcwd(), 'github-releases.yaml'))
   parser.add_argument('-d', '--dir', help='Directory to download the files to.', default=os.getcwd())
   parser.add_argument('-u', '--url', help='Base URL of the GitHub API server.', default='https://api.github.com')
-  parser.add_argument('-q', '--quiet', help='Suppress all stdout print statements.', action='store_true')
   parser.add_argument('-p', '--progress', help='Show download progress bar.', action='store_true')
+  parser.add_argument('-q', '--quiet', help='Suppress all stdout print statements.', action='store_true')
+  parser.add_argument('--version', action='version',
+                   version='{version}'.format(version=__version__))
 
   args = parser.parse_args()
 
