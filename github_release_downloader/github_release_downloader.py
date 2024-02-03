@@ -6,7 +6,7 @@ import yaml
 import requests
 import argparse
 
-def github_release_download(yaml_file_path=None, download_dir=None, base_url='https://api.github.com'):
+def get_releases(yaml_file_path=None, download_dir=None, base_url='https://api.github.com'):
   # If no YAML file path is provided, use the default file
   if yaml_file_path is None:
       yaml_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'github-releases.yaml')
@@ -69,4 +69,4 @@ if __name__ == "__main__":
 
   args = parser.parse_args()
 
-  github_release_download(args.config, args.dir, args.url)
+  get_releases(args.config, args.dir, args.url)

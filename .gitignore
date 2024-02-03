@@ -1,2 +1,4 @@
 .direnv
 requirements.txt
+dist
+github_release_downloader.egg-info
