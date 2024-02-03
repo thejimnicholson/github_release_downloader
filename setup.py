@@ -12,4 +12,9 @@ setup(
     description='Download GitHub release assets specified in a YAML file.',
     packages=find_packages(),    
     install_requires=requirements,
+    entry_points={
+        'console_scripts': [
+            'github_release_downloader=github_release_downloader:main',
+        ],
+    },
 )

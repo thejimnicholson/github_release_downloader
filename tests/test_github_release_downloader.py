@@ -1,24 +1,25 @@
 import unittest
-import os
-from unittest.mock import patch, mock_open
-from github_release_downloader import get_releases  # replace with the name of your script
+from unittest.mock import patch
+from github_release_downloader import get_releases
 
-class TestGithubReleaseDownload(unittest.TestCase):
-    @patch('builtins.open', new_callable=mock_open, read_data="files:\n- file1\n- file2")
-    @patch('os.path.exists', return_value=True)
-    @patch('os.path.getsize', return_value=123)
+class TestGetReleases(unittest.TestCase):
     @patch('requests.get')
-    def test_github_release_downloader(self, mock_get, mock_getsize, mock_exists, mock_yaml):
+    def test_get_releases(self, mock_get):
+        # Mock the response from requests.get
         mock_response = mock_get.return_value
-        mock_response.iter_content.return_value = [b'file content']
-        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = [
+            {'name': 'release1'},
+            {'name': 'release2'},
+            {'name': 'release3'},
+        ]
 
-        get_releases('fake_path')
+        # Call the function with a fake repository
+        get_releases('fake_repo')
 
-        mock_get.assert_called()
-        mock_getsize.assert_called()
-        mock_exists.assert_called()
-        mock_yaml.assert_called_with('fake_path', 'r')
+        # Assert that requests.get was called with the correct URL
+        mock_get.assert_called_once_with('https://api.github.com/repos/fake_repo/releases')
+
+
 
 if __name__ == '__main__':
     unittest.main()
