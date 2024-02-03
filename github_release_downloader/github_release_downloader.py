@@ -1,4 +1,5 @@
 import argparse
+import getpass
 import os
 import re
 import sys
@@ -152,10 +153,15 @@ def main(argv=sys.argv):
   args = parser.parse_args()
 
   if not os.path.exists(args.config):
-    print(f"error: Config file {args.config} does not exist.", file=sys.stderr)
+    print(f"Error: Config file {args.config} does not exist.", file=sys.stderr)
     if not args.quiet:
       parser.print_help()
     sys.exit(1)
+
+  # Check if the local file path exists and is writable
+  if not os.path.exists(args.dir) or not os.access(args.dir, os.W_OK):
+    print(f"Error: {args.dir} does not exist or is not writable by user {getpass.getuser()}.", file=sys.stderr)
+    sys.exit(2)
   
   get_release_assets(args.config, args.dir, args.url, args.quiet, args.progress)
 
