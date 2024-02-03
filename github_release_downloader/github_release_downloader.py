@@ -6,8 +6,8 @@ import sys
 import requests
 import yaml
 from tqdm import tqdm
-from github_release_downloader._version import __version__
 
+from github_release_downloader._version import __version__
 
 
 def get_release_assets(yaml_file_path=None, 
@@ -15,6 +15,29 @@ def get_release_assets(yaml_file_path=None,
                        base_url='https://api.github.com', 
                        quiet=False,
                        show_progress=False):
+  """
+  Downloads the latest release assets from a GitHub repository.
+
+  Parameters:
+  yaml_file_path (str): The path to the YAML file that contains the repositories and files to download.
+  download_dir (str): The directory where the downloaded files will be stored.
+  base_url (str): The base URL for the GitHub API. Default is 'https://api.github.com'.
+  quiet (bool): If set to True, the function will not print any output. Default is False.
+  show_progress (bool): If set to True, the function will display a progress bar for the download. Default is False.
+
+  The YAML file should have the following structure:
+  - repository: The repository's name in the format 'username/repo'.
+  - name: The name of the project.
+  - files: A list of file patterns to match against the asset's name. Can be a string or a regex pattern.
+
+  Example:
+  - repository: 'username/repo'
+    name: 'My Project'
+    files: ['*.zip', 'README.md']
+
+  This function will download the latest release assets that match the file patterns for each repository listed in the YAML file.
+  If a local file with the same name and size already exists, the download is skipped.
+  """
 
   # Suppress progress bars if quiet is set
   if quiet:
@@ -28,13 +51,11 @@ def get_release_assets(yaml_file_path=None,
   for item in data:
 
     # Get the latest release
-    response = requests.get(f"{base_url}/repos/{item['repository']}/releases/latest")
-    response.raise_for_status()
-    json = response.json()
+    github_response = get_latest_release(item['repository'], base_url)
 
     # Print the name of the release
     if not quiet:
-      print(f"Latest release of {item['name']} is {json['name']}")
+      print(f"Latest release of {item['name']} is {github_response['name']}")
 
     # Process the "files" attribute of the current item
     for file_pattern in item['files']:
@@ -49,9 +70,8 @@ def get_release_assets(yaml_file_path=None,
       else:
         match_func = file_pattern.__eq__
 
-
       # Find the asset in the release
-      for asset in json['assets']:
+      for asset in github_response['assets']:
         if match_func(asset['name']):
           local_file_path = os.path.join(download_dir, asset['name'])
 
@@ -64,8 +84,38 @@ def get_release_assets(yaml_file_path=None,
               print(f"  Downloading asset {asset['name']}")
             download_file(asset['browser_download_url'], local_file_path, show_progress)
 
+def get_latest_release(repository, base_url='https://api.github.com'):
+  """
+  Fetches the latest release of a GitHub repository.
+
+  Parameters:
+  repository (str): The repository's name in the format 'username/repo'.
+  base_url (str): The base URL for the GitHub API. Default is 'https://api.github.com'.
+
+  Returns:
+  dict: A dictionary containing the JSON response from the GitHub API.
+
+  This function sends a GET request to the GitHub API to fetch the latest release of the specified repository.
+  It raises an HTTPError if the request returns an unsuccessful status code.
+  """
+  response = requests.get(f"{base_url}/repos/{repository}/releases/latest")
+  response.raise_for_status()
+  return response.json()  
 
 def download_file(url, local_file_path, show_progress):
+  """
+  Downloads a file from a given URL.
+
+  Parameters:
+  url (str): The URL of the file to download.
+  local_file_path (str): The local path where the downloaded file will be saved.
+  show_progress (bool): If set to True, the function will display a progress bar for the download.
+
+  This function uses the requests library to download the file in chunks of 8192 bytes. 
+  If show_progress is True, it uses the tqdm library to display a progress bar that shows how much of the file has been downloaded.
+  The function raises an HTTPError if the download request returns an unsuccessful status code.
+  """
+
   # Download the file
   response = requests.get(url, stream=True)
   response.raise_for_status()
