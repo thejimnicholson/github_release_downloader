@@ -1,0 +1,9 @@
+- name: yq
+  repository: mikefarah/yq
+  files:
+    - yq_linux_amd64
+    - yq_windows_amd64.exe
+- name: jq
+  repository: jqlang/jq
+  files:
+    - jq-linux-amd64
