@@ -11,3 +11,7 @@
   repository: jqlang/jq
   files:
     - jq-linux-amd64
+- name: kung-foo-panda
+  repository: thejimnicholson/github_release_downloader
+  files:
+    - kfp.exe
