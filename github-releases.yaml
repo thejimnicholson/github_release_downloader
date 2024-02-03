@@ -1,3 +1,7 @@
+- name: version
+  repository: matryer/version
+  files:
+    - version-.*-linux-amd64.tar
 - name: yq
   repository: mikefarah/yq
   files:

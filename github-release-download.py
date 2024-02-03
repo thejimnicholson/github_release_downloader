@@ -3,6 +3,7 @@
 import requests
 import yaml
 import os
+import re
 
 # Load the YAML file
 with open('github-releases.yaml', 'r') as file:
@@ -19,17 +20,22 @@ for item in data:
   # Print the name of the release
   print(f"Found release: {json['name']}")
 
-  # For each file we want to download
-  for file_name in item['files']:
-
+# For each file we want to download
+  for file_pattern in item['files']:
+    # If the file pattern contains special regex characters, compile it as a regex
+    if any(char in file_pattern for char in {'.', '^', '$', '*', '+', '?', '{', '}', '[', ']', '\\', '|', '(', ')'}):
+      file_regex = re.compile(file_pattern)
+      match_func = file_regex.match
+    else:
+      match_func = file_pattern.__eq__
+  
     # Find the asset in the release
     for asset in json['assets']:
-      
-      if asset['name'] == file_name:
-        local_file_path = f'github-release-downloads/{file_name}'
-              # If the local file exists and its size is the same as the file to be downloaded, skip the download
+      if match_func(asset['name']):
+        local_file_path = f"github-release-downloads/{asset['name']}"
+        # If the local file exists and its size is the same as the file to be downloaded, skip the download
         if os.path.exists(local_file_path) and os.path.getsize(local_file_path) == asset['size']:
-          print(f"File {file_name} already exists and is the same size. Skipping download.")
+          print(f"File {asset['name']} already exists and is the same size. Skipping download.")
         else:
           print(f"Downloading {asset['name']}")
           # Download the file
@@ -37,7 +43,6 @@ for item in data:
           response.raise_for_status()
 
           # Save the file
-          with open(f"github-release-downloads/{file_name}", 'wb') as file:
+          with open(local_file_path, 'wb') as file:
             for chunk in response.iter_content(chunk_size=8192):
               file.write(chunk)
-          break
