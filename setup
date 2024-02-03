@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+pip install -q --upgrade pip
+if ! command -v pip-compile > /dev/null; then
+  pip install -q --upgrade pip-tools
+fi
+if [ ! -f "requirements.txt" ]; then
+  pip-compile -q --strip-extras
+fi
+pip-sync
