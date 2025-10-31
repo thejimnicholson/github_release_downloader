@@ -29,7 +29,7 @@ pip install .
 Or install directly from the repository:
 
 ```bash
-pip install git+https://github.com/yourusername/github_release_downloader.git
+pip install git+https://github.com/thejimnicholson/github_release_downloader.git
 ```
 
 ## Quick Start
@@ -144,7 +144,7 @@ We welcome contributions to the GitHub Release Downloader project! Here's how yo
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/yourusername/github_release_downloader.git
+   git clone https://github.com/thejimnicholson/github_release_downloader.git
    cd github_release_downloader
    ```
 3. Create a virtual environment:
