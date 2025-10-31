@@ -1,0 +1,35 @@
+- name: version
+  repository: matryer/version
+  files:
+    - version-.*-linux-amd64.tar
+- name: yq
+  repository: mikefarah/yq
+  files:
+    - yq_linux_amd64
+    - yq_windows_amd64.exe
+- name: jq
+  repository: jqlang/jq
+  files:
+    - jq-linux-amd64
+    - jq-windows-amd64.exe
+- name: dart-sass
+  repository: sass/dart-sass
+  files:
+    - dart-sass-.*-linux-x64.tar.gz
+    - dart-sass-.*-windows-x64.zip
+- name: fluxcd
+  repository: fluxcd/flux2
+  files:
+    - flux\_.*\_windows_amd64.zip
+    - flux\_.*\_linux_amd64.tar.gz
+- name: decK
+  repository: kong/deck
+  files:
+    - deck\_.*\_windows_amd64.tar.gz
+    - deck\_.*\_amd64.rpm
+- name: k9s
+  repository: derailed/k9s
+  files:
+    - k9s_linux_amd64.rpm
+    - k9s_Linux_amd64.tar.gz
+    - k9s_Windows_amd64.zip

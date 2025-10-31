@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-pip install -q --upgrade pip
+pip install -q --upgrade pip==25.2
 if ! command -v pip-compile > /dev/null; then
   pip install -q --upgrade pip-tools
 fi

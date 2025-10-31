@@ -1,5 +1,4 @@
 .direnv
-requirements.txt
 build
 dist
 github_release_downloader.egg-info

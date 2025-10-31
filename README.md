@@ -22,6 +22,8 @@ This tool helps you maintain a curated collection of GitHub-hosted tools by auto
 
 ## Installation
 
+### pip install
+
 ```bash
 pip install .
 ```
@@ -32,30 +34,44 @@ Or install directly from the repository:
 pip install git+https://github.com/thejimnicholson/github_release_downloader.git
 ```
 
+### Docker
+
+Build the Docker image:
+
+```bash
+docker build -t github-release-downloader .
+```
+
+Or pull from a registry (if published):
+
+```bash
+docker pull yourusername/github-release-downloader
+```
+
 ## Quick Start
 
 1. Create a YAML configuration file (`github-releases.yaml`):
 
-```yaml
-- repository: 'cli/cli'
-  name: 'GitHub CLI'
-  files: ['*linux_amd64.tar.gz']
+   ```yaml
+   - repository: 'cli/cli'
+   name: 'GitHub CLI'
+   files: ['*linux_amd64.tar.gz']
 
-- repository: 'docker/compose'
-  name: 'Docker Compose'
-  files: ['docker-compose-linux-x86_64']
-```
+   - repository: 'docker/compose'
+   name: 'Docker Compose'
+   files: ['docker-compose-linux-x86_64']
+   ```
 
 2. Run the downloader:
 
-```bash
-download_releases -c github-releases.yaml -d ./downloads
-```
+   ```bash
+   download-releases -c github-releases.yaml -d ./downloads
+   ```
 
 ## Usage
 
 ```bash
-download_releases [OPTIONS]
+download-releases [OPTIONS]
 ```
 
 ### Options
@@ -72,30 +88,33 @@ download_releases [OPTIONS]
 
 The YAML configuration file should contain a list of repositories with the following structure:
 
-```yaml
-- repository: 'owner/repo'    # Required: GitHub repository in 'owner/repo' format
-  name: 'Project Name'        # Required: Human-readable name for the project
-  files:                      # Required: List of file patterns to download
-    - '*.zip'                 # Glob pattern
-    - 'binary-linux-.*'       # Regular expression (auto-detected)
-    - 'specific-file.tar.gz'  # Exact filename
-```
+   ```yaml
+   - repository: 'owner/repo'    # Required: GitHub repository in 'owner/repo' format
+   name: 'Project Name'        # Required: Human-readable name for the project
+   files:                      # Required: List of file patterns to download
+      - '*.zip'                 # Glob pattern
+      - 'binary-linux-.*'       # Regular expression (auto-detected)
+      - 'specific-file.tar.gz'  # Exact filename
+   ```
 
 ### Examples
 
 Download with progress bars:
+
 ```bash
-download_releases --config tools.yaml --dir ./bin --progress
+download-releases --config tools.yaml --dir ./bin --progress
 ```
 
 Use with GitHub token for higher rate limits:
+
 ```bash
-download_releases --token ghp_xxxxxxxxxxxx --config private-repos.yaml
+download-releases --token ghp_xxxxxxxxxxxx --config private-repos.yaml
 ```
 
 Silent operation for scripts:
+
 ```bash
-download_releases --quiet --config automation.yaml
+download-releases --quiet --config automation.yaml
 ```
 
 ## Pattern Matching
@@ -110,7 +129,7 @@ The tool supports both simple glob patterns and regular expressions:
 
 For private repositories or to increase API rate limits, use a GitHub personal access token:
 
-1. Generate a token at https://github.com/settings/tokens
+1. Generate a token at <https://github.com/settings/tokens>
 2. For public repositories: No specific scopes required
 3. For private repositories: Grant `repo` scope
 4. Use with `--token` flag or set `GITHUB_TOKEN` environment variable
@@ -143,16 +162,21 @@ We welcome contributions to the GitHub Release Downloader project! Here's how yo
 
 1. Fork the repository on GitHub
 2. Clone your fork locally:
+
    ```bash
    git clone https://github.com/thejimnicholson/github_release_downloader.git
    cd github_release_downloader
    ```
+
 3. Create a virtual environment:
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
+
 4. Install the package in development mode:
+
    ```bash
    pip install -e .
    ```
@@ -160,13 +184,16 @@ We welcome contributions to the GitHub Release Downloader project! Here's how yo
 ### Making Changes
 
 1. Create a new branch for your feature or bug fix:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
+
 2. Make your changes and add tests if applicable
 3. Ensure your code follows Python style guidelines (PEP 8)
 4. Test your changes thoroughly
 5. Commit your changes with a descriptive commit message:
+
    ```bash
    git commit -m "Add feature: description of your changes"
    ```
@@ -182,9 +209,11 @@ Before submitting your changes:
 ### Submitting Changes
 
 1. Push your branch to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
+
 2. Create a Pull Request on GitHub with:
    - A clear title describing your changes
    - A detailed description of what you've changed and why
@@ -215,3 +244,43 @@ If you find a bug or have a feature request:
 Feel free to open an issue for questions about contributing or using the tool.
 
 Thank you for contributing to make this project better!
+
+## Docker Usage
+
+### Basic Usage
+
+Create your configuration file locally and run:
+
+```bash
+docker run --rm \
+  -v $(pwd)/config:/config \
+  -v $(pwd)/downloads:/downloads \
+  github-release-downloader \
+  --config /config/github-releases.yaml \
+  --dir /downloads \
+  --progress
+```
+
+### With GitHub Token
+
+```bash
+docker run --rm \
+  -e GITHUB_TOKEN=your_token_here \
+  -v $(pwd)/config:/config \
+  -v $(pwd)/downloads:/downloads \
+  github-release-downloader \
+  --config /config/github-releases.yaml \
+  --dir /downloads \
+  --token $GITHUB_TOKEN
+```
+
+### Interactive Usage
+
+For testing or one-off downloads:
+
+```bash
+docker run --rm -it \
+  -v $(pwd)/downloads:/downloads \
+  github-release-downloader \
+  --help
+```
