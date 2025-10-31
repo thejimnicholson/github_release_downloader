@@ -133,8 +133,85 @@ The tool gracefully handles common scenarios:
 
 ## License
 
-[Add your license information here]
+This project is released under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
-[Add contributing guidelines here]
+We welcome contributions to the GitHub Release Downloader project! Here's how you can help:
+
+### Getting Started
+
+1. Fork the repository on GitHub
+2. Clone your fork locally:
+   ```bash
+   git clone https://github.com/yourusername/github_release_downloader.git
+   cd github_release_downloader
+   ```
+3. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+4. Install the package in development mode:
+   ```bash
+   pip install -e .
+   ```
+
+### Making Changes
+
+1. Create a new branch for your feature or bug fix:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+2. Make your changes and add tests if applicable
+3. Ensure your code follows Python style guidelines (PEP 8)
+4. Test your changes thoroughly
+5. Commit your changes with a descriptive commit message:
+   ```bash
+   git commit -m "Add feature: description of your changes"
+   ```
+
+### Testing
+
+Before submitting your changes:
+
+1. Run the tool with various configurations to ensure it works as expected
+2. Test edge cases (missing files, network errors, permission issues)
+3. Verify that existing functionality still works
+
+### Submitting Changes
+
+1. Push your branch to your fork:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+2. Create a Pull Request on GitHub with:
+   - A clear title describing your changes
+   - A detailed description of what you've changed and why
+   - Any relevant issue numbers (e.g., "Fixes #123")
+
+### Code Style
+
+- Follow PEP 8 Python style guidelines
+- Use meaningful variable and function names
+- Add docstrings for new functions
+- Keep functions focused and relatively small
+- Add comments for complex logic
+
+### Reporting Issues
+
+If you find a bug or have a feature request:
+
+1. Check existing issues to avoid duplicates
+2. Create a new issue with:
+   - A clear, descriptive title
+   - Steps to reproduce (for bugs)
+   - Expected vs. actual behavior
+   - Your environment details (OS, Python version, etc.)
+   - Sample configuration files (if relevant)
+
+### Questions?
+
+Feel free to open an issue for questions about contributing or using the tool.
+
+Thank you for contributing to make this project better!
