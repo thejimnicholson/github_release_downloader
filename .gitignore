@@ -4,3 +4,4 @@ build
 dist
 github_release_downloader.egg-info
 __pycache__
+releases/*

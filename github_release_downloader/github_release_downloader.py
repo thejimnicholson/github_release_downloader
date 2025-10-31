@@ -15,7 +15,8 @@ def get_release_assets(yaml_file_path=None,
                        download_dir=None, 
                        base_url='https://api.github.com', 
                        quiet=False,
-                       show_progress=False):
+                       show_progress=False,
+                       token=None):
   """
   Downloads the latest release assets from a GitHub repository.
 
@@ -52,15 +53,11 @@ def get_release_assets(yaml_file_path=None,
   for item in data:
 
     # Get the latest release
-    try:
-      github_response = get_latest_release(item['repository'], base_url)
-    except requests.exceptions.HTTPError as err:
-      print(f"Error: received HTTP status {err.response.status_code} looking for latest release of {item['repository']}", file=sys.stderr)
-      break
+    json = get_latest_release(item['repository'], base_url, token)
 
     # Print the name of the release
     if not quiet:
-      print(f"Latest release of {item['name']} is {github_response['name']}")
+      print(f"Latest release of {item['name']} is {json['name']}")
 
     # Process the "files" attribute of the current item
     for file_pattern in item['files']:
@@ -76,7 +73,7 @@ def get_release_assets(yaml_file_path=None,
         match_func = file_pattern.__eq__
 
       # Find the asset in the release
-      for asset in github_response['assets']:
+      for asset in json['assets']:
         if match_func(asset['name']):
           local_file_path = os.path.join(download_dir, asset['name'])
 
@@ -89,23 +86,28 @@ def get_release_assets(yaml_file_path=None,
               print(f"  Downloading asset {asset['name']}")
             download_file(asset['browser_download_url'], local_file_path, show_progress)
 
-def get_latest_release(repository, base_url='https://api.github.com'):
-  """
-  Fetches the latest release of a GitHub repository.
+def get_latest_release(repository, base_url='https://api.github.com', token=None):
+    """
+    Fetches the latest release of a GitHub repository.
 
-  Parameters:
-  repository (str): The repository's name in the format 'username/repo'.
-  base_url (str): The base URL for the GitHub API. Default is 'https://api.github.com'.
+    Parameters:
+    repository (str): The repository's name in the format 'username/repo'.
+    base_url (str): The base URL for the GitHub API. Default is 'https://api.github.com'.
+    token (str): GitHub personal access token for authentication. Optional.
 
-  Returns:
-  dict: A dictionary containing the JSON response from the GitHub API.
+    Returns:
+    dict: A dictionary containing the JSON response from the GitHub API.
 
-  This function sends a GET request to the GitHub API to fetch the latest release of the specified repository.
-  It raises an HTTPError if the request returns an unsuccessful status code.
-  """
-  response = requests.get(f"{base_url}/repos/{repository}/releases/latest")
-  response.raise_for_status()
-  return response.json()  
+    This function sends a GET request to the GitHub API to fetch the latest release of the specified repository.
+    It raises an HTTPError if the request returns an unsuccessful status code.
+    """
+    headers = {}
+    if token:
+        headers['Authorization'] = f'Bearer {token}'
+    
+    response = requests.get(f"{base_url}/repos/{repository}/releases/latest", headers=headers)
+    response.raise_for_status()
+    return response.json()  
 
 def download_file(url, local_file_path, show_progress):
   """
@@ -152,29 +154,30 @@ def download_file(url, local_file_path, show_progress):
 
 
 def main(argv=sys.argv):
-  parser = argparse.ArgumentParser(description='Download GitHub release assets specified in a YAML file.')
-  parser.add_argument('-c', '--config', help='Path to the YAML file.', default=os.path.join(os.getcwd(), 'github-releases.yaml'))
-  parser.add_argument('-d', '--dir', help='Directory to download the files to.', default=os.getcwd())
-  parser.add_argument('-u', '--url', help='Base URL of the GitHub API server.', default='https://api.github.com')
-  parser.add_argument('-p', '--progress', help='Show download progress bar.', action='store_true')
-  parser.add_argument('-q', '--quiet', help='Suppress all stdout print statements.', action='store_true')
-  parser.add_argument('--version', action='version',
+    parser = argparse.ArgumentParser(description='Download GitHub release assets specified in a YAML file.')
+    parser.add_argument('-c', '--config', help='Path to the YAML file.', default=os.path.join(os.getcwd(), 'github-releases.yaml'))
+    parser.add_argument('-d', '--dir', help='Directory to download the files to.', default=os.getcwd())
+    parser.add_argument('-u', '--url', help='Base URL of the GitHub API server.', default='https://api.github.com')
+    parser.add_argument('-p', '--progress', help='Show download progress bar.', action='store_true')
+    parser.add_argument('-q', '--quiet', help='Suppress all stdout print statements.', action='store_true')
+    parser.add_argument('--version', action='version',
                    version='{version}'.format(version=__version__))
+    parser.add_argument('-t', '--token', help='GitHub personal access token for API authentication.')
+    
+    args = parser.parse_args()
 
-  args = parser.parse_args()
+    if not os.path.exists(args.config):
+        print(f"Error: Config file {args.config} does not exist.", file=sys.stderr)
+        if not args.quiet:
+            parser.print_help()
+        sys.exit(1)
 
-  if not os.path.exists(args.config):
-    print(f"Error: Config file {args.config} does not exist.", file=sys.stderr)
-    if not args.quiet:
-      parser.print_help()
-    sys.exit(1)
-
-  # Check if the local file path exists and is writable
-  if not os.path.exists(args.dir) or not os.access(args.dir, os.W_OK):
-    print(f"Error: {args.dir} does not exist or is not writable by user {getpass.getuser()}.", file=sys.stderr)
-    sys.exit(2)
-  
-  get_release_assets(args.config, args.dir, args.url, args.quiet, args.progress)
+    # Check if the local file path exists and is writable
+    if not os.path.exists(args.dir) or not os.access(args.dir, os.W_OK):
+        print(f"Error: {args.dir} does not exist or is not writable by user {getpass.getuser()}.", file=sys.stderr)
+        sys.exit(2)
+    
+    get_release_assets(args.config, args.dir, args.url, args.quiet, args.progress, args.token)
 
 if __name__ == "__main__":
   main()
